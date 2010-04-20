@@ -15,8 +15,12 @@ import mvfs
 
 storage = mvfs.Storage('/base/folder/')
 
-f = storage.open('/some/file/path')
+f = storage.open('/some/file/path', 'r') # open the latest revision for reading
+f = storage.open('/path', 'r', ts=2344) # open the revision created before this timestamp
 
-with storage.open('/path/in/the/virtual/fs', ts=1234) as f:
+f = storage.open('/existing/path', 'w') # a new revision is created and a lock is created
+
+# create a new context and open an older revision for writing
+with storage.open('/path/in/the/virtual/fs', 'w', ts=23) as f:
     f.write('something')
 
