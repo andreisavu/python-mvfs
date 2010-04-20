@@ -1,0 +1,3 @@
+
+class MVFSException(Exception): pass
+
