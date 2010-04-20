@@ -21,3 +21,7 @@ class TestStorage(unittest.TestCase):
     def test_create_new_storage_instace_fails_folder_not_found(self):
         self.assertRaises(mvfs.Storage.NotFound, mvfs.Storage, '/tmp/dummy-path')
 
+    def test_storage_base_path_should_be_folder(self):
+        call(['touch', '/tmp/mvfs_test/dummy-file'])
+        self.assertRaises(mvfs.Storage.InvalidPath, mvfs.Storage, '/tmp/mvfs_test/dummy-file')
+
