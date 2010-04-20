@@ -25,3 +25,7 @@ class TestStorage(unittest.TestCase):
         call(['touch', '/tmp/mvfs_test/dummy-file'])
         self.assertRaises(mvfs.Storage.InvalidPath, mvfs.Storage, '/tmp/mvfs_test/dummy-file')
 
+    def test_check_path_existence_in_the_virtual_filesystem(self):
+        storage = mvfs.Storage(self.base_path)
+        self.assertFalse(storage.exists('file'))
+

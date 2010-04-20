@@ -23,3 +23,7 @@ class Storage(object):
 
         self.base_path = base_path
 
+    def exists(self, vpath):
+        """ Check path existence in virtual file system """
+        return False
+
