@@ -58,6 +58,13 @@ class Storage(object):
         if not os.path.exists(dir):
             if ts is None: 
                 return None
+
+            head, tail = os.path.split(dir)
+            while head != self.base_path:
+                if self._contains_files(head):
+                    raise Storage.AlreadyExists, "A file with the same name alrady exists."
+                head, tail = os.path.split(head)
+        
             mkdir_p(dir)
 
         elif os.path.isdir(dir) and self._contains_dirs(dir):
@@ -78,4 +85,12 @@ class Storage(object):
                 return True
         return False
 
+
+    def _contains_files(self, dir):
+        if not os.path.exists(dir):
+            return False
+        for f in os.listdir(dir):
+            if os.path.isfile(os.path.join(dir, f)):
+                return True
+        return False
 
