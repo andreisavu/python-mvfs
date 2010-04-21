@@ -6,8 +6,6 @@ import tempfile
 
 import mvfs
 
-from subprocess import call
-
 class TestStorage(unittest.TestCase):
 
     def setUp(self):
@@ -40,5 +38,4 @@ class TestStorage(unittest.TestCase):
         storage = self._get_instance()
         with storage.open('file', 'w') as f: pass
 
-        self.assertTrue(storage.exists('file')
-
+        self.assertTrue(storage.exists('file'))
