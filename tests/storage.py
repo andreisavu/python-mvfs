@@ -1,18 +1,20 @@
 
+import os
 import unittest
-from subprocess import call
+import shutil
+import tempfile
 
 import mvfs
+
+from subprocess import call
 
 class TestStorage(unittest.TestCase):
 
     def setUp(self):
-        call(['rm', '-rf', '/tmp/mvfs_test'])
-        call(['mkdir', '/tmp/mvfs_test'])
-        self.base_path = '/tmp/mvfs_test/'
+        self.base_path = tempfile.mkdtemp()
 
     def tearDown(self):
-        call(['rm', '-rf', '/tmp/mvfs_test'])
+        shutil.rmtree(self.base_path)
 
     def test_create_new_storage_instance(self):
         storage = mvfs.Storage(self.base_path)
@@ -21,8 +23,11 @@ class TestStorage(unittest.TestCase):
         self.assertRaises(mvfs.Storage.NotFound, mvfs.Storage, '/tmp/dummy-path')
 
     def test_storage_base_path_should_be_folder(self):
-        call(['touch', '/tmp/mvfs_test/dummy-file'])
-        self.assertRaises(mvfs.Storage.InvalidPath, mvfs.Storage, '/tmp/mvfs_test/dummy-file')
+        dummy = os.path.join(self.base_path, 'dummy')
+        with open(dummy, 'w') as f: pass
+
+        self.assertRaises(mvfs.Storage.InvalidPath, \
+            mvfs.Storage, dummy)
 
     def test_check_path_existence_in_the_virtual_filesystem(self):
         storage = mvfs.Storage(self.base_path)
