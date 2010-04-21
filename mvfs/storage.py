@@ -23,9 +23,7 @@ class Storage(object):
             super(Storage.InvalidPath, self).__init__('Invalid base path: '\
                 '%s. Expecting a folder.' % path)
 
-    class InvalidPath(MVFSException):
-        def __init__(self, path):
-            super(Storage.InvalidPath, self).__init__('The path is invalid: %s' % path)
+    class AlreadyExists(MVFSException): pass
 
     timer = DefaultTimer()
 
@@ -63,7 +61,7 @@ class Storage(object):
             mkdir_p(dir)
 
         elif os.path.isdir(dir) and self._contains_dirs(dir):
-            return InvalidPath, vpath
+            raise Storage.AlreadyExists, "A directory with the same name already exists."
 
         if ts is None:
             ts = self._latest_version_ts(dir)

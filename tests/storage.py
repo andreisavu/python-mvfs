@@ -73,5 +73,5 @@ class TestStorage(unittest.TestCase):
         storage = self._get_instance()
 
         storage.open('dir1/dir2/f1','w').close()
-        self.assertRaises(mvfs.Storage.InvalidPath, storage.open, 'dir1/dir2', 'w')
-        
+        self.assertRaises(mvfs.Storage.AlreadyExists, storage.open, 'dir1/dir2', 'w')
+
