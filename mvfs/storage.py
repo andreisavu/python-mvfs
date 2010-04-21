@@ -25,5 +25,12 @@ class Storage(object):
 
     def exists(self, vpath):
         """ Check path existence in virtual file system """
-        return False
+        return os.path.exists(self._real_path(vpath))
+
+    def open(self, vpath, mode='r'):
+        return open(self._real_path(vpath), mode)
+
+    def _real_path(self, vpath):
+        """ Build a real file path from a virtual path """
+        return os.path.join(self.base_path, vpath)
 

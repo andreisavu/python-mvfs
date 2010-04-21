@@ -3,7 +3,6 @@ import unittest
 from subprocess import call
 
 import mvfs
-import mvfs.storage
 
 class TestStorage(unittest.TestCase):
 
@@ -28,4 +27,10 @@ class TestStorage(unittest.TestCase):
     def test_check_path_existence_in_the_virtual_filesystem(self):
         storage = mvfs.Storage(self.base_path)
         self.assertFalse(storage.exists('file'))
+
+    def test_open_file_for_writing_and_check_existence(self):
+        storage = mvfs.Storage(self.base_path)
+        with storage.open('file', 'w') as f:
+            pass
+        self.assertTrue(storage.exists('file'))
 
