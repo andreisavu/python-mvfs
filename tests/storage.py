@@ -39,3 +39,14 @@ class TestStorage(unittest.TestCase):
         with storage.open('file', 'w') as f: pass
 
         self.assertTrue(storage.exists('file'))
+
+    def test_a_new_file_should_not_exists_in_the_past(self):
+        from time import time
+
+        storage = self._get_instance()
+        with storage.open('file', 'w'): pass
+        past = time() - 1000
+ 
+        self.assertTrue(storage.exists('file'))
+        self.assertFalse(storage.exists('file', ts=past))
+

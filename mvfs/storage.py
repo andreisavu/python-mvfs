@@ -1,7 +1,10 @@
 
 import os
 
+from time import time
+
 from mvfs.exceptions import MVFSException
+from mvfs.utils import mkdir_p
 
 class Storage(object):
 
@@ -23,14 +26,19 @@ class Storage(object):
 
         self.base_path = base_path
 
-    def exists(self, vpath):
+    def exists(self, vpath, ts=None):
         """ Check path existence in virtual file system """
-        return os.path.exists(self._real_path(vpath))
+        return os.path.exists(self._real_path(vpath, ts))
 
     def open(self, vpath, mode='r'):
         return open(self._real_path(vpath), mode)
 
-    def _real_path(self, vpath):
+    def _real_path(self, vpath, ts=None):
         """ Build a real file path from a virtual path """
-        return os.path.join(self.base_path, vpath)
+        if ts is None: ts = time()
+        dir = os.path.join(self.base_path, vpath)
+
+        if not os.path.exists(dir):
+            mkdir_p(dir)
+        return os.path.join(dir, str(ts))
 
