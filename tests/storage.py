@@ -50,3 +50,22 @@ class TestStorage(unittest.TestCase):
         self.assertTrue(storage.exists('file'))
         self.assertFalse(storage.exists('file', ts=past))
 
+    def test_write_and_read_from_file(self):
+        class Timer(object):
+            index = 0
+
+            def time(self):
+                t = (123, 456)[self.index]
+                self.index += 1
+                return t
+
+        storage = self._get_instance()
+        storage.timer = Timer()
+
+        with storage.open('file', 'w') as f:
+            f.write('test line')
+
+        content = storage.open('file').read()
+        self.assertEqual(content, 'test line')
+
+
