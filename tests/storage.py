@@ -16,8 +16,11 @@ class TestStorage(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.base_path)
 
+    def _get_instance(self):
+        return mvfs.Storage(self.base_path)
+
     def test_create_new_storage_instance(self):
-        storage = mvfs.Storage(self.base_path)
+        storage = self._get_instance()
         
     def test_create_new_storage_instace_fails_folder_not_found(self):
         self.assertRaises(mvfs.Storage.NotFound, mvfs.Storage, '/tmp/dummy-path')
@@ -30,12 +33,12 @@ class TestStorage(unittest.TestCase):
             mvfs.Storage, dummy)
 
     def test_check_path_existence_in_the_virtual_filesystem(self):
-        storage = mvfs.Storage(self.base_path)
+        storage = self._get_instance()
         self.assertFalse(storage.exists('file'))
 
     def test_open_file_for_writing_and_check_existence(self):
-        storage = mvfs.Storage(self.base_path)
-        with storage.open('file', 'w') as f:
-            pass
-        self.assertTrue(storage.exists('file'))
+        storage = self._get_instance()
+        with storage.open('file', 'w') as f: pass
+
+        self.assertTrue(storage.exists('file')
 
