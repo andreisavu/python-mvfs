@@ -73,5 +73,14 @@ class TestStorage(unittest.TestCase):
         storage = self._get_instance()
 
         storage.open('dir1/dir2/f1','w').close()
-        self.assertRaises(mvfs.Storage.AlreadyExists, storage.open, 'dir1/dir2', 'w')
+        self.assertRaises(mvfs.Storage.AlreadyExists, \
+            storage.open, 'dir1/dir2', 'w')
+
+    def test_create_directory_with_the_same_name_as_a_file(self):
+        storage = self._get_instance()
+
+        storage.open('dir1/f1', 'w').close()
+        self.assertRaises(mvfs.Storage.AlreadyExists, \
+            storage.open, 'dir1/f1/f2', 'w')
+
 
