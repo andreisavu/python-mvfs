@@ -32,6 +32,9 @@ class TestStorage(unittest.TestCase):
 
     def test_create_new_storage_instance(self):
         storage = self._get_instance()
+
+    def test_storage_base_path_must_be_an_absolute_path(self):
+        self.assertRaises(mvfs.Storage.InvalidPath, mvfs.Storage, 'relative/path')
         
     def test_create_new_storage_instace_fails_folder_not_found(self):
         self.assertRaises(mvfs.Storage.NotFound, mvfs.Storage, '/tmp/dummy-path')
@@ -99,5 +102,4 @@ class TestStorage(unittest.TestCase):
         for i, ts in izip(count(), versions):
             content = storage.open('file', ts=ts).read()
             self.assertEqual(content, 'version: %d' % (4-i))
-
 

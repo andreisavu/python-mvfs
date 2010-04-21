@@ -18,21 +18,21 @@ class Storage(object):
         def __init__(self, path):
             super(Storage.NotFound, self).__init__('Base path not found: %s' % path)
 
-    class InvalidPath(MVFSException):
-        def __init__(self, path):
-            super(Storage.InvalidPath, self).__init__('Invalid base path: '\
-                '%s. Expecting a folder.' % path)
+    class InvalidPath(MVFSException): pass
 
     class AlreadyExists(MVFSException): pass
 
     timer = DefaultTimer()
 
     def __init__(self, base_path):
+        if base_path[0] != '/':
+            raise Storage.InvalidPath, "The base path should be absolute."
+
         if not os.path.exists(base_path):
             raise Storage.NotFound, base_path
 
         if not os.path.isdir(base_path):
-            raise Storage.InvalidPath, base_path
+            raise Storage.InvalidPath, "Expecting a folder: %s" % base_path
 
         self.base_path = base_path
 
