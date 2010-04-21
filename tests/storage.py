@@ -17,6 +17,10 @@ class PredictableTimer(object):
         self.start += self.step
         return self.start
 
+class ConstantTimer(object):
+    def time(): 
+        return 42
+
 class TestStorage(unittest.TestCase):
 
     def setUp(self):
