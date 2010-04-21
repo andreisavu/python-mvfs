@@ -23,6 +23,10 @@ class Storage(object):
             super(Storage.InvalidPath, self).__init__('Invalid base path: '\
                 '%s. Expecting a folder.' % path)
 
+    class InvalidPath(MVFSException):
+        def __init__(self, path):
+            super(Storage.InvalidPath, self).__init__('The path is invalid: %s' % path)
+
     timer = DefaultTimer()
 
     def __init__(self, base_path):
@@ -58,6 +62,9 @@ class Storage(object):
                 return None
             mkdir_p(dir)
 
+        elif os.path.isdir(dir) and self._contains_dirs(dir):
+            return InvalidPath, vpath
+
         if ts is None:
             ts = self._latest_version_ts(dir)
 
@@ -66,4 +73,11 @@ class Storage(object):
     def _latest_version_ts(self, dir):
         return max([int(f) for f in os.listdir(dir)])
             
+
+    def _contains_dirs(self, dir):
+        for f in os.listdir(dir):
+            if os.path.isdir(os.path.join(dir, f)): 
+                return True
+        return False
+
 

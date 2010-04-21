@@ -6,6 +6,15 @@ import tempfile
 
 import mvfs
 
+class PredictableTimer(object):
+    def __init__(self, start=1, step=1):
+        self.start = start - step
+        self.step = step
+
+    def time(self):
+        self.start += self.step
+        return self.start
+
 class TestStorage(unittest.TestCase):
 
     def setUp(self):
@@ -19,6 +28,7 @@ class TestStorage(unittest.TestCase):
 
     def test_create_new_storage_instance(self):
         storage = self._get_instance()
+        storage.timer = PredictableTimer()
         
     def test_create_new_storage_instace_fails_folder_not_found(self):
         self.assertRaises(mvfs.Storage.NotFound, mvfs.Storage, '/tmp/dummy-path')
@@ -51,16 +61,7 @@ class TestStorage(unittest.TestCase):
         self.assertFalse(storage.exists('file', ts=past))
 
     def test_write_and_read_from_file(self):
-        class Timer(object):
-            index = 0
-
-            def time(self):
-                t = (123, 456)[self.index]
-                self.index += 1
-                return t
-
         storage = self._get_instance()
-        storage.timer = Timer()
 
         with storage.open('file', 'w') as f:
             f.write('test line')
@@ -68,4 +69,9 @@ class TestStorage(unittest.TestCase):
         content = storage.open('file').read()
         self.assertEqual(content, 'test line')
 
+    def test_create_file_with_same_name_as_a_directory(self):
+        storage = self._get_instance()
 
+        storage.open('dir1/dir2/f1','w').close()
+        self.assertRaises(mvfs.Storage.InvalidPath, storage.open, 'dir1/dir2', 'w')
+        
