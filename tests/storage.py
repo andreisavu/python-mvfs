@@ -6,6 +6,8 @@ import tempfile
 
 import mvfs
 
+from itertools import izip, count
+
 class PredictableTimer(object):
     def __init__(self, start=1, step=1):
         self.start = start - step
@@ -24,11 +26,12 @@ class TestStorage(unittest.TestCase):
         shutil.rmtree(self.base_path)
 
     def _get_instance(self):
-        return mvfs.Storage(self.base_path)
+        storage = mvfs.Storage(self.base_path)
+        storage.timer = PredictableTimer()
+        return storage
 
     def test_create_new_storage_instance(self):
         storage = self._get_instance()
-        storage.timer = PredictableTimer()
         
     def test_create_new_storage_instace_fails_folder_not_found(self):
         self.assertRaises(mvfs.Storage.NotFound, mvfs.Storage, '/tmp/dummy-path')
@@ -82,5 +85,19 @@ class TestStorage(unittest.TestCase):
         storage.open('dir1/f1', 'w').close()
         self.assertRaises(mvfs.Storage.AlreadyExists, \
             storage.open, 'dir1/f1/f2', 'w')
+
+    def test_create_multiple_versions_and_get_a_list(self):
+        storage = self._get_instance()
+
+        for i in range(0, 5):
+            with storage.open('file', 'w') as f:
+                f.write('version: %d' % i)
+
+        versions = storage.get_versions('file')
+        self.assertEqual(len(versions), 5)
+
+        for i, ts in izip(count(), versions):
+            content = storage.open('file', ts=ts).read()
+            self.assertEqual(content, 'version: %d' % (4-i))
 
 

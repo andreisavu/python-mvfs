@@ -41,12 +41,15 @@ class Storage(object):
         path = self._real_path(vpath, ts)
         return path is not None and os.path.exists(path)
 
-    def open(self, vpath, mode='r'):
-        ts = None
-        if mode in ('w', 'w+'):
+    def open(self, vpath, mode='r', ts=None):
+        if mode in ('w', 'w+') and ts is None:
             ts = self.timer.time()
 
         return open(self._real_path(vpath, ts=ts), mode)
+
+    def get_versions(self, vpath):
+        path = os.path.join(self.base_path, vpath)
+        return sorted([int(f) for f in os.listdir(path)], reverse=True)
 
     def _real_path(self, vpath, ts=None):
         """ Build a real file path from a virtual path 
