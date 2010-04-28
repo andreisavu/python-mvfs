@@ -119,4 +119,4 @@ class TestStorage(unittest.TestCase):
 
         versions = storage.get_versions('file')
         self.assertEqual(len(versions), 2)
-
+        self.assertEqual(versions, ['42.00001', '42.00000'])

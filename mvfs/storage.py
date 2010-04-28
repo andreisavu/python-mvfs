@@ -9,7 +9,7 @@ class DefaultTimer(object):
     """ The default timer uses the time provider by the operating system """
 
     def time(self):
-        return int(time.time())
+        return time.time()
 
 
 class Storage(object):
@@ -23,6 +23,9 @@ class Storage(object):
     class AlreadyExists(MVFSException): pass
 
     timer = DefaultTimer()
+
+    def _get_time(self):
+        return "%.5f" % self.timer.time()
 
     def __init__(self, base_path):
         if base_path[0] != '/':
@@ -43,15 +46,16 @@ class Storage(object):
 
     def open(self, vpath, mode='r', ts=None):
         if mode in ('w', 'w+') and ts is None:
-            ts = float(self.timer.time())
+            ts = self._get_time()
             while self.exists(vpath, ts): 
-                ts += 0.00001    # move the new version a bit into the future
+                ts = "%.5f" % (float(ts) + 0.00001)    # move the new version a bit into the future
 
         return open(self._real_path(vpath, ts=ts), mode)
 
     def get_versions(self, vpath):
         path = os.path.join(self.base_path, vpath)
-        return sorted([float(f) for f in os.listdir(path)], reverse=True)
+        return ["%.5f" % el for el in \
+            sorted((float(f) for f in os.listdir(path)), reverse=True)]
 
     def _real_path(self, vpath, ts=None):
         """ Build a real file path from a virtual path 
@@ -81,15 +85,13 @@ class Storage(object):
         return os.path.join(dir, str(ts))
 
     def _latest_version_ts(self, dir):
-        return max([float(f) for f in os.listdir(dir)])
+        return "%.5f" % max([float(f) for f in os.listdir(dir)])
             
-
     def _contains_dirs(self, dir):
         for f in os.listdir(dir):
             if os.path.isdir(os.path.join(dir, f)): 
                 return True
         return False
-
 
     def _contains_files(self, dir):
         if not os.path.exists(dir):
