@@ -107,3 +107,16 @@ class TestStorage(unittest.TestCase):
             content = storage.open('file', ts=ts).read()
             self.assertEqual(content, 'version: %d' % (4-i))
 
+    def test_create_two_versions_at_the_same_timestamp(self):
+        storage = self._get_instance()
+        storage.timer = ConstantTimer()
+
+        with storage.open('file', 'w') as f:
+            f.write('version 1')
+
+        with storage.open('file', 'w') as f:
+            f.write('version 2')
+
+        versions = storage.get_versions('file')
+        self.assertEqual(len(versions), 2)
+

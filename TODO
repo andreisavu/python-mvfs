@@ -1,5 +1,5 @@
 
-* handle timestamp collisions when creating new revisions
+DONE * handle timestamp collisions when creating new revisions
 * exclusive access by using folder level locking
 * limit the total number of revisions
 * storage cleanup & optimize methods
