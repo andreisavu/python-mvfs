@@ -120,3 +120,12 @@ class TestStorage(unittest.TestCase):
         versions = storage.get_versions('file')
         self.assertEqual(len(versions), 2)
         self.assertEqual(versions, ['42.00001', '42.00000'])
+
+    def test_cleanup_extra_versions(self):
+        storage = self._get_instance()
+        for i in range(0,5): storage.open('file', 'w').close()
+
+        storage.cleanup(versions=2)
+        versions = storage.get_versions('file')
+        self.assertEqual(len(versions), 2)
+

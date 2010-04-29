@@ -20,6 +20,8 @@ class Storage(object):
 
     class InvalidPath(MVFSException): pass
 
+    class InvalidFS(MVFSException): pass
+
     class AlreadyExists(MVFSException): pass
 
     timer = DefaultTimer()
@@ -56,6 +58,32 @@ class Storage(object):
         path = os.path.join(self.base_path, vpath)
         return ["%.5f" % el for el in \
             sorted((float(f) for f in os.listdir(path)), reverse=True)]
+
+    def cleanup(self, versions=None):
+        for el in os.listdir(self.base_path):
+
+            path = os.path.join(self.base_path, el)
+            if not os.path.isdir(path):
+                raise InvalidFS, 'Invalid virtual filesystem. ' \
+                    'Found a file when expecting only directories: %s' % path
+
+            self._cleanup(path, versions)
+
+    def _cleanup(self, base_path, versions):
+        if self._contains_files(base_path):
+            try:
+                ids = ["%.5f" % el for el in \
+                    sorted((float(f) for f in os.listdir(base_path)), reverse=True)]
+            except (TypeError, ValueError), e:
+                raise InvalidFS, 'Invalid virtual filesystem: %s' % e
+
+            ids_to_rm = ids[versions:]
+            for id in ids_to_rm:
+                os.unlink(os.path.join(base_path, id))
+
+        else:
+            for el in os.listdir(base_path):
+                self._cleanup(os.path.join(base_path, el), versions)
 
     def _real_path(self, vpath, ts=None):
         """ Build a real file path from a virtual path 
