@@ -1,6 +1,7 @@
 
 import os
 import time
+import gzip
 
 from mvfs.exceptions import MVFSException
 from mvfs.utils import mkdir_p
@@ -52,18 +53,28 @@ class Storage(object):
             while self.exists(vpath, ts): 
                 ts = "%.5f" % (float(ts) + 0.00001)    # move the new version a bit into the future
 
-        return open(self._real_path(vpath, ts=ts), mode)
+        return self._gzip_open(self._real_path(vpath, ts=ts), mode)
+
+    def _gzip_open(self, path, mode):
+        class ClosingContextManager(object):
+            def __init__(self, thing):
+                self.thing = thing
+
+            def __getattr__(self, name):
+                return getattr(self.thing, name)
+
+            def __enter__(self):
+                return self.thing
+
+            def __exit__(self, *args):
+                self.thing.close()
+
+        return ClosingContextManager(gzip.open(path, mode))
 
     def get_versions(self, vpath):
         path = os.path.join(self.base_path, vpath)
         return ["%.5f" % el for el in \
             sorted((float(f) for f in os.listdir(path)), reverse=True)]
-
-    def compact(self):
-        def compactor(base_path, ids):
-            pass
-
-        self._map_to_vfile(self.base_path, compactor)
 
     def cleanup(self, versions=None):
         def cleaner(base_path, ids):

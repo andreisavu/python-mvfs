@@ -129,20 +129,3 @@ class TestStorage(unittest.TestCase):
         versions = storage.get_versions('file')
         self.assertEqual(len(versions), 2)
 
-    def test_compact_and_cleanup_extra_versions(self):
-        storage = self._get_instance()
-        for i in range(0,5): 
-            with storage.open('file', 'w') as f:
-                f.write('version: %s' % i)
-
-        storage.compact()
-        storage.cleanup(versions=2)
-
-        versions = storage.get_versions('file')
-        self.assertEqual(len(versions), 2)
-
-        for i, ts in izip(count(), versions):
-            content = storage.open('file', ts=ts).read()
-            self.assertEqual(content, 'version: %d' % (4-i))
-
-
