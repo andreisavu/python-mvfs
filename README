@@ -24,3 +24,5 @@ f = storage.open('/existing/path', 'w') # a new revision is created and a lock i
 with storage.open('/path/in/the/virtual/fs', 'w', ts=23) as f:
     f.write('something')
 
+storage.cleanup(versions=5)  # cleanup the store and maintain no more than 5 versions for each file
+
