@@ -6,6 +6,12 @@ An easy solution you can use if you need to store multiple or all versions.
 The library is built on top of the standard filesystem.
 You can edit older versions. Each version is stored in gzip format.
 
+Requirements
+------------
+
+A recent version of python
+For testing: python-magic
+
 How the api looks like?
 -----------------------
 
