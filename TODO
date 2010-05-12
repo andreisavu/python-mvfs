@@ -1,4 +1,7 @@
 
 * exclusive access by using folder level locking
 * improved validation on virtual path
+* LZO opener
+* LZM opener
+* maybe: BZIP opener
 
