@@ -6,7 +6,7 @@ import sys
 sys.path.append('..')
 
 import mvfs
-import mvfs.storage
+import mvfs.openers
 
 def abspath(*args):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), *args)
@@ -31,5 +31,5 @@ def download_and_store(base_path, opener=False):
 
 if __name__ == '__main__':
     download_and_store('store-default')
-    download_and_store('store-plain', mvfs.storage.PlainFileOpener())
+    download_and_store('store-plain', mvfs.openers.PlainFileOpener())
 
