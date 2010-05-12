@@ -6,12 +6,13 @@ import sys
 sys.path.append('..')
 
 import mvfs
+import mvfs.storage
 
 def abspath(*args):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), *args)
 
-if __name__ == '__main__':
-    store_path = abspath('store')
+def download_and_store(base_path, opener=False):
+    store_path = abspath(base_path)
     if not os.path.exists(store_path):
         os.mkdir(store_path)
 
@@ -21,9 +22,14 @@ if __name__ == '__main__':
 
     url, dest = sys.argv[1:]
 
-    storage = mvfs.Storage(store_path)
+    storage = mvfs.Storage(store_path, opener=opener)
     with storage.open(dest, 'w') as f:
         f.write(urllib.urlopen(url).read())
 
     storage.cleanup(versions=10)
+
+
+if __name__ == '__main__':
+    download_and_store('store-default')
+    download_and_store('store-plain', mvfs.storage.PlainFileOpener())
 

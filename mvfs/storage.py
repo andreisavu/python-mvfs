@@ -12,6 +12,36 @@ class DefaultTimer(object):
     def time(self):
         return time.time()
 
+class Opener(object):
+    def open(self, path, mode='r'):
+        """ When implemented this method should return a file-like object 
+
+        It should be possible to use the returned object as a context manager.
+        """
+        raise Exception, "Not implemented"
+
+class PlainFileOpener(Opener):
+    def open(self, path, mode='r'):
+        return open(path, mode)
+
+class GZipFileOpener(Opener):
+
+    class ClosingContextManager(object):
+        def __init__(self, thing):
+            self.thing = thing
+
+        def __getattr__(self, name):
+            return getattr(self.thing, name)
+
+        def __enter__(self):
+            return self.thing
+
+        def __exit__(self, *args):
+            self.thing.close()
+
+
+    def open(self, path, mode='r'):
+        return self.ClosingContextManager(gzip.open(path, mode))
 
 class Storage(object):
 
@@ -25,12 +55,13 @@ class Storage(object):
 
     class AlreadyExists(MVFSException): pass
 
-    timer = DefaultTimer()
-
     def _get_time(self):
         return "%.5f" % self.timer.time()
 
-    def __init__(self, base_path):
+    def __init__(self, base_path, timer=False, opener=False):
+        self.timer = timer or DefaultTimer()
+        self.opener = opener or GZipFileOpener()
+
         if base_path[0] != '/':
             raise Storage.InvalidPath, "The base path should be absolute."
 
@@ -53,23 +84,7 @@ class Storage(object):
             while self.exists(vpath, ts): 
                 ts = "%.5f" % (float(ts) + 0.00001)    # move the new version a bit into the future
 
-        return self._gzip_open(self._real_path(vpath, ts=ts), mode)
-
-    def _gzip_open(self, path, mode):
-        class ClosingContextManager(object):
-            def __init__(self, thing):
-                self.thing = thing
-
-            def __getattr__(self, name):
-                return getattr(self.thing, name)
-
-            def __enter__(self):
-                return self.thing
-
-            def __exit__(self, *args):
-                self.thing.close()
-
-        return ClosingContextManager(gzip.open(path, mode))
+        return self.opener.open(self._real_path(vpath, ts=ts), mode)
 
     def get_versions(self, vpath):
         path = os.path.join(self.base_path, vpath)
