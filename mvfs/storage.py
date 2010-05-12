@@ -112,7 +112,7 @@ class Storage(object):
             head, tail = os.path.split(dir)
             while head != self.base_path:
                 if self._contains_files(head):
-                    raise Storage.AlreadyExists, "A file with the same name alrady exists."
+                    raise Storage.AlreadyExists, "A file with the same name already exists."
                 head, tail = os.path.split(head)
         
             mkdir_p(dir)
